@@ -1,31 +1,23 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-
 namespace: dev
-
 bases:
   - ../../base
-
 namePrefix: dev-
-
 commonLabels:
   environment: dev
-
 configMapGenerator:
   - name: gitops-demo-config
     behavior: merge
     literals:
       - APP_ENV=development
-
 replicas:
   - name: gitops-demo-app
     count: 1
-
 images:
   - name: gitops-demo-app
     newName: ghcr.io/m2v0a02/gitops
-    newTag: develop-b2aeb0723be67a0a4a7a3b4ccfe049012a25f1f3
-
+    newTag: develop-d97abbf1a296149bade9c3cece71e8276e54f7de
 patches:
   - patch: |-
       apiVersion: apps/v1
