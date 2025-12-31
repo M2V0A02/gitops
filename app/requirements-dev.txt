@@ -12,4 +12,4 @@ black==23.12.1
 bandit==1.7.6
 
 # Security
-safety==2.3.5
+safety==3.0.1
