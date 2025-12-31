@@ -1,0 +1,10 @@
+# Gitleaks ignore file
+# Add false positives here
+
+# Coverage files are binary and trigger false positives
+app/.coverage
+.coverage
+
+# Test files may contain example tokens
+test_*.py
+**/test_*.py
