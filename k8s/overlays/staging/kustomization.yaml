@@ -33,4 +33,4 @@ patches:
                   cpu: 200m
                   memory: 256Mi
 images:
-  - newTag: main-dc927a4086c12b774af9d5db19b5a5d8e52577d3
+  - newTag: main-50e7ba5a01bdf22f7bbec33ed37f73aeb8cb7b39
