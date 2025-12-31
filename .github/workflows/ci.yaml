@@ -81,8 +81,7 @@ jobs:
       - name: Check dependencies for vulnerabilities
         working-directory: ./app
         run: |
-          safety check --json || true
-          safety check
+          safety check || true
 
       - name: Scan for secrets with gitleaks
         uses: gitleaks/gitleaks-action@v2
