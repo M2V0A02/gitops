@@ -21,6 +21,11 @@ replicas:
   - name: gitops-demo-app
     count: 3
 
+images:
+  - name: gitops-demo-app
+    newName: ghcr.io/m2v0a02/gitops
+    newTag: main-dc927a4086c12b774af9d5db19b5a5d8e52577d3
+
 patches:
   - patch: |-
       apiVersion: apps/v1
