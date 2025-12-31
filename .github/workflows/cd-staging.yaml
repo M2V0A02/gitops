@@ -1,0 +1,50 @@
+name: CD - Deploy to Staging
+
+on:
+  workflow_dispatch:
+    inputs:
+      image-tag:
+        description: 'Docker image tag to deploy'
+        required: true
+        type: string
+
+jobs:
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: http://staging.gitops-demo.local
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install yq
+        run: |
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Update staging image tag
+        run: |
+          cd k8s/overlays/staging
+          yq eval '.images[0].newTag = "${{ inputs.image-tag }}"' -i kustomization.yaml
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add k8s/overlays/staging/kustomization.yaml
+          git commit -m "Deploy to staging: ${{ inputs.image-tag }}
+
+          🚀 Manual deployment to staging environment
+
+          Co-Authored-By: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>"
+          git push
+
+      - name: Wait for ArgoCD sync
+        run: |
+          echo "Waiting for ArgoCD to sync the changes..."
+          echo "Check ArgoCD UI for deployment status"
+          echo "Image tag: ${{ inputs.image-tag }}"

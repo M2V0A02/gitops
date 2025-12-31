@@ -1,0 +1,75 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  # Base box
+  config.vm.box = "ubuntu/jammy64"  # Ubuntu 22.04 LTS
+  config.vm.box_check_update = true
+
+  # VM configuration
+  config.vm.define "k3s-node" do |node|
+    node.vm.hostname = "k3s-node"
+
+    # Network configuration
+    node.vm.network "private_network", ip: "192.168.56.10"
+
+    # Port forwarding for services
+    node.vm.network "forwarded_port", guest: 6443, host: 6443, protocol: "tcp"  # K3s API
+    node.vm.network "forwarded_port", guest: 80, host: 8080, protocol: "tcp"     # HTTP
+    node.vm.network "forwarded_port", guest: 443, host: 8443, protocol: "tcp"    # HTTPS
+    node.vm.network "forwarded_port", guest: 30000, host: 30000, protocol: "tcp" # ArgoCD UI
+    node.vm.network "forwarded_port", guest: 30080, host: 30080, protocol: "tcp" # App NodePort
+
+    # VirtualBox provider settings
+    node.vm.provider "virtualbox" do |vb|
+      vb.name = "gitops-k3s-node"
+      vb.memory = "4096"  # 4GB RAM
+      vb.cpus = 2
+
+      # Performance optimizations
+      vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+      vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+      vb.customize ["modifyvm", :id, "--ioapic", "on"]
+    end
+
+    # Synced folders
+    node.vm.synced_folder "../", "/vagrant", type: "virtualbox"
+
+    # Provisioning with Ansible
+    node.vm.provision "ansible" do |ansible|
+      ansible.playbook = "../ansible/playbooks/site.yml"
+      ansible.inventory_path = "../ansible/inventory/hosts.yml"
+      ansible.verbose = "v"
+      ansible.extra_vars = {
+        ansible_python_interpreter: "/usr/bin/python3"
+      }
+    end
+  end
+
+  # Post-installation message
+  config.vm.post_up_message = <<-MESSAGE
+  ╔═══════════════════════════════════════════════════════════╗
+  ║          GitOps K3s VM is ready!                         ║
+  ╚═══════════════════════════════════════════════════════════╝
+
+  VM IP: 192.168.56.10
+
+  Access your services:
+  - K3s API: https://192.168.56.10:6443
+  - ArgoCD UI: http://localhost:30000
+  - Application: http://localhost:30080
+
+  SSH into the VM:
+    vagrant ssh
+
+  Get kubeconfig:
+    vagrant ssh -c "sudo cat /etc/rancher/k3s/k3s.yaml" > kubeconfig
+    # Then edit kubeconfig and change server IP to 192.168.56.10
+
+  Useful commands:
+    vagrant status    - Check VM status
+    vagrant halt      - Stop the VM
+    vagrant destroy   - Delete the VM
+    vagrant provision - Re-run Ansible provisioning
+  MESSAGE
+end

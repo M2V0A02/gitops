@@ -1,0 +1,18 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: default
+
+resources:
+  - deployment.yaml
+  - service.yaml
+  - configmap.yaml
+
+commonLabels:
+  app.kubernetes.io/name: gitops-demo-app
+  app.kubernetes.io/managed-by: argocd
+
+images:
+  - name: gitops-demo-app
+    newName: gitops-demo-app
+    newTag: latest

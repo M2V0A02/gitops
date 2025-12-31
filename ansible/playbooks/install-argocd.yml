@@ -1,0 +1,83 @@
+---
+- name: Install ArgoCD
+  hosts: all
+  become: true
+  vars:
+    argocd_version: v2.9.3
+
+  tasks:
+    - name: Create argocd namespace
+      ansible.builtin.shell: |
+        kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
+      environment:
+        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+
+    - name: Install ArgoCD
+      ansible.builtin.shell: |
+        kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/{{ argocd_version }}/manifests/install.yaml
+      environment:
+        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+
+    - name: Wait for ArgoCD pods to be ready
+      ansible.builtin.shell: |
+        kubectl wait --for=condition=Ready pods --all -n argocd --timeout=300s
+      environment:
+        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+      register: argocd_ready
+      retries: 5
+      delay: 10
+      until: argocd_ready.rc == 0
+
+    - name: Patch ArgoCD server service to NodePort
+      ansible.builtin.shell: |
+        kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "NodePort", "ports": [{"port": 443, "nodePort": 30000, "name": "https"}]}}'
+      environment:
+        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+
+    - name: Get ArgoCD admin password
+      ansible.builtin.shell: |
+        kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+      environment:
+        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+      register: argocd_password
+      changed_when: false
+
+    - name: Save ArgoCD credentials to file
+      ansible.builtin.copy:
+        content: |
+          ArgoCD Access Information
+          =========================
+          URL: https://192.168.56.10:30000
+          Username: admin
+          Password: {{ argocd_password.stdout }}
+
+          To access ArgoCD:
+          1. Navigate to https://localhost:30000 (accept self-signed certificate)
+          2. Login with username: admin
+          3. Login with password from above
+
+          To change password:
+          argocd account update-password
+
+          To login via CLI:
+          argocd login localhost:30000 --username admin --password {{ argocd_password.stdout }} --insecure
+        dest: /home/vagrant/argocd-credentials.txt
+        owner: vagrant
+        group: vagrant
+        mode: '0600'
+
+    - name: Display ArgoCD access information
+      ansible.builtin.debug:
+        msg:
+          - "========================================="
+          - "ArgoCD Installation Complete!"
+          - "========================================="
+          - "URL: https://localhost:30000"
+          - "Username: admin"
+          - "Password: {{ argocd_password.stdout }}"
+          - ""
+          - "Credentials saved to: /home/vagrant/argocd-credentials.txt"
+          - ""
+          - "Install ArgoCD CLI (optional):"
+          - "curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/{{ argocd_version }}/argocd-linux-amd64"
+          - "chmod +x /usr/local/bin/argocd"

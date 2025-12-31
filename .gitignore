@@ -1,0 +1,40 @@
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+venv/
+env/
+.env
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+target/
+
+# Logs
+*.log
+logs/
+
+# Kubernetes secrets (if accidentally generated locally)
+*.secret.yaml
+secrets/
+
+# Temporary files
+*.tmp
+.cache/
+
+# Docker
+.dockerignore
+
+# OS files
+Thumbs.db

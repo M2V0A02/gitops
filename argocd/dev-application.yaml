@@ -1,0 +1,44 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gitops-demo-dev
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+
+  # Source repository
+  source:
+    repoURL: https://github.com/M2V0A02/gitops.git  # UPDATE THIS
+    targetRevision: develop
+    path: k8s/overlays/dev
+
+  # Destination cluster and namespace
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: dev
+
+  # Sync policy
+  syncPolicy:
+    automated:
+      prune: true      # Automatically delete resources removed from Git
+      selfHeal: true   # Automatically sync when cluster state differs from Git
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+
+  # Ignore differences in certain fields
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas  # Ignore if HPA modifies replicas

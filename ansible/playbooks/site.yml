@@ -1,0 +1,48 @@
+---
+- name: Setup GitOps Infrastructure
+  hosts: all
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install prerequisites
+      ansible.builtin.apt:
+        name:
+          - curl
+          - wget
+          - git
+          - apt-transport-https
+          - ca-certificates
+          - software-properties-common
+        state: present
+
+- name: Install Docker
+  import_playbook: install-docker.yml
+
+- name: Install K3s
+  import_playbook: install-k3s.yml
+
+- name: Install ArgoCD
+  import_playbook: install-argocd.yml
+
+- name: Post-installation tasks
+  hosts: all
+  become: true
+  tasks:
+    - name: Display completion message
+      ansible.builtin.debug:
+        msg:
+          - "========================================="
+          - "GitOps Infrastructure Setup Complete!"
+          - "========================================="
+          - "K3s is running"
+          - "ArgoCD is installed"
+          - "Next steps:"
+          - "1. Get kubeconfig: sudo cat /etc/rancher/k3s/k3s.yaml"
+          - "2. Access ArgoCD UI: kubectl port-forward svc/argocd-server -n argocd 30000:443"
+          - "3. Get ArgoCD password: kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d"

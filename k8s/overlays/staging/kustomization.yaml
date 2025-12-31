@@ -1,0 +1,41 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: staging
+
+bases:
+  - ../../base
+
+namePrefix: staging-
+
+commonLabels:
+  environment: staging
+
+configMapGenerator:
+  - name: gitops-demo-config
+    behavior: merge
+    literals:
+      - APP_ENV=staging
+
+replicas:
+  - name: gitops-demo-app
+    count: 2
+
+patches:
+  - patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: gitops-demo-app
+      spec:
+        template:
+          spec:
+            containers:
+            - name: app
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+                limits:
+                  cpu: 200m
+                  memory: 256Mi
