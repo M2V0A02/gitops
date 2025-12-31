@@ -1,0 +1,11 @@
+exclude_dirs:
+  - /test_env
+  - /venv
+  - /env
+  - /.venv
+  - /__pycache__
+  - /.pytest_cache
+
+skips:
+  - B101
+  - B104

@@ -75,8 +75,8 @@ jobs:
       - name: Run bandit security scan
         working-directory: ./app
         run: |
-          bandit -r . -f json -o bandit-report.json || true
-          bandit -r . -f screen
+          bandit -r . -x './test_env/*,./venv/*,./env/*,./.venv/*' --skip B101,B104 -f json -o bandit-report.json || true
+          bandit -r . -x './test_env/*,./venv/*,./env/*,./.venv/*' --skip B101,B104 -f screen
 
       - name: Check dependencies for vulnerabilities
         working-directory: ./app

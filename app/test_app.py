@@ -75,8 +75,8 @@ def test_create_item(client):
     }
 
     response = client.post('/api/items',
-                          data=json.dumps(item_data),
-                          content_type='application/json')
+                           data=json.dumps(item_data),
+                           content_type='application/json')
 
     assert response.status_code == 201
 
@@ -94,8 +94,8 @@ def test_create_item_without_name(client):
     }
 
     response = client.post('/api/items',
-                          data=json.dumps(item_data),
-                          content_type='application/json')
+                           data=json.dumps(item_data),
+                           content_type='application/json')
 
     assert response.status_code == 400
 
@@ -146,8 +146,8 @@ def test_update_item(client):
     # Update it
     update_data = {'name': 'Updated Name', 'description': 'New description'}
     response = client.put(f'/api/items/{item_id}',
-                         data=json.dumps(update_data),
-                         content_type='application/json')
+                          data=json.dumps(update_data),
+                          content_type='application/json')
 
     assert response.status_code == 200
 
@@ -161,8 +161,8 @@ def test_update_nonexistent_item(client):
     """Test updating an item that doesn't exist"""
     update_data = {'name': 'Test'}
     response = client.put('/api/items/9999',
-                         data=json.dumps(update_data),
-                         content_type='application/json')
+                          data=json.dumps(update_data),
+                          content_type='application/json')
 
     assert response.status_code == 404
 

@@ -10,8 +10,16 @@ from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_
 app = Flask(__name__)
 
 # Prometheus metrics
-REQUEST_COUNT = Counter('app_requests_total', 'Total request count', ['method', 'endpoint', 'status'])
-REQUEST_LATENCY = Histogram('app_request_latency_seconds', 'Request latency', ['endpoint'])
+REQUEST_COUNT = Counter(
+    'app_requests_total',
+    'Total request count',
+    ['method', 'endpoint', 'status']
+)
+REQUEST_LATENCY = Histogram(
+    'app_request_latency_seconds',
+    'Request latency',
+    ['endpoint']
+)
 
 # In-memory storage for demo
 items = {}
