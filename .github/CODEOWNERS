@@ -1,0 +1,20 @@
+# GitOps CODEOWNERS
+# Each line is a file pattern followed by one or more owners.
+
+# Production manifests require approval from SRE team
+/k8s/overlays/prod/*        @M2V0A02
+
+# Staging manifests require DevOps approval
+/k8s/overlays/staging/*     @M2V0A02
+
+# Dev environment - all developers
+/k8s/overlays/dev/*         @M2V0A02
+
+# CI/CD workflows require DevOps approval
+/.github/workflows/*        @M2V0A02
+
+# ArgoCD applications require Platform team approval
+/argocd/*                   @M2V0A02
+
+# Application code - developers
+/app/*                      @M2V0A02
