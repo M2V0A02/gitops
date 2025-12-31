@@ -17,7 +17,7 @@ replicas:
 images:
   - name: gitops-demo-app
     newName: ghcr.io/m2v0a02/gitops
-    newTag: develop-2b08f1ad6c47d0a2f806dae37edd63cdb572fb37
+    newTag: develop-65585179b10b2d8e27c045a545b8a9504a5e8460
 patches:
   - patch: |-
       apiVersion: apps/v1
