@@ -35,4 +35,4 @@ patches:
 images:
   - name: gitops-demo-app
     newName: ghcr.io/m2v0a02/gitops
-    newTag: main-50e7ba5a01bdf22f7bbec33ed37f73aeb8cb7b39
+    newTag: main-d97abbf1a296149bade9c3cece71e8276e54f7de
